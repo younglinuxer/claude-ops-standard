@@ -15,7 +15,7 @@
 
 默认 Compose 文件为 `/data/app/{project}/compose.yml`。如果开发环境和测试环境临时部署在同一台服务器，可以使用同一项目目录下的 `compose.dev.yml`、`compose.test.yml`，但每个环境仍必须由一个 Compose 文件完整管理。
 
-真实密钥不得写入 Git 仓库或 Markdown 文档。`.env.example` 只保留变量名和说明；真实值必须来自服务器受限权限文件、Nacos、企业密码库或负责人指定私有渠道。
+开发/测试环境的真实环境配置、账号、密码、Token、私钥等识别信息，必须在业务项目 `.claude/ops/project-adapter.md` 或项目明确登记的私有适配清单中记录。生产信息不得写入本标准或普通项目文档。`.env.example` 只保留变量名和说明；运行时真实值可以来自服务器受限权限文件、Nacos、Compose `.env`、企业密码库或负责人指定私有渠道，但来源和用途必须能在项目适配清单中追踪。
 
 ## 单 Compose 要求
 
@@ -68,6 +68,14 @@ docker compose down -v
 docker volume rm volume_name
 docker system prune
 ```
+
+## 打包与版本来源
+
+- 项目打包配置必须可外部修改，不得写死在业务代码、不可覆盖的镜像层或固定脚本中。
+- Compose 中的 `image`、`environment`、`env_file`、挂载配置和启动参数必须能追踪到具体来源。
+- 开发 -> 测试 -> 生产流转时，必须提供 jar 包路径或镜像地址。
+- 默认使用 Docker 镜像交付时，开发只负责构建并推送镜像；目标环境版本替换由运维或负责人按 Compose 中的镜像 tag 完成。
+- 替换版本前必须记录当前镜像 tag 或 jar 文件，替换后必须记录新版本和验证结果。
 
 ## 重大变更记录
 
