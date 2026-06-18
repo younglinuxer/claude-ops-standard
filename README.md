@@ -10,7 +10,7 @@ Git 地址：`https://github.com/younglinuxer/claude-ops-standard.git`
 2. 从 Git 仓库读取本标准，必要时先执行 `git clone https://github.com/younglinuxer/claude-ops-standard.git` 或在已有副本中执行 `git pull`。
 3. 读取对应标准文件。
 4. 读取业务项目适配清单，例如 `.claude/ops/project-adapter.md`。
-5. 先输出命令级执行计划，包含目标环境、命令、影响范围、验证方式和回滚方式。
+5. 先输出命令级执行计划，包含目标环境、命令、影响范围、验证方式、回滚方式和重大变更日志位置。
 6. 等待用户确认后再执行变更命令。
 
 只读排查可以直接执行，但如果排查命令可能造成负载、泄露敏感信息或改变状态，也必须先确认。
@@ -31,7 +31,10 @@ Git 地址：`https://github.com/younglinuxer/claude-ops-standard.git`
 - 第一版只覆盖开发环境和测试环境，不覆盖生产变更。
 - 开发人员可以自主管理环境，但高风险操作必须命令级确认。
 - 密码、Token、私钥等敏感信息不新增到文档；文档只记录配置来源和获取路径。
-- 新开发、测试环境优先使用 Docker Compose。
+- 所有 Docker 运行必须通过 Docker Compose 编排，不允许用 `docker run` 或手工 `docker start/restart/rm` 管理运行服务。
+- 每个项目固定放在服务器目录 `/data/app/{project}`，默认 Compose 文件为 `/data/app/{project}/compose.yml`。
+- 同一环境的前端、后端、中间件、数据库、对象存储等运行程序必须放在同一个 Compose 文件中，不拆多个 Compose。
+- 服务器重大变更必须记录到 `/data/logs/{project}-{env}-changes.md`。
 - 现有 K8s 环境第一版只允许只读排查，变更必须升级给负责人确认。
 
 ## 给 Claude 的硬性要求
@@ -42,5 +45,7 @@ Claude 在处理运维任务时必须遵守：
 - 不得跳过本仓库标准和业务项目适配清单。
 - 不得新增或输出明文密码、Token、私钥、证书。
 - 涉及变更命令时，必须先给出命令级计划并等待确认。
+- 涉及 Docker 运行时，必须使用 `docker compose` 命令和项目登记的 Compose 文件。
 - 涉及数据库 DDL/DML 时，必须说明环境、库名、表名、SQL、影响范围、备份方式和回滚方式。
+- 涉及服务器重大变更时，必须在计划中声明 `/data/logs` 下的日志文件路径，执行后追加记录。
 - 涉及 K8s 写操作时，必须停止执行并要求负责人确认。
