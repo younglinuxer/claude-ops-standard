@@ -73,16 +73,19 @@ docker system prune
 
 - 项目打包配置必须可外部修改，不得写死在业务代码、不可覆盖的镜像层或固定脚本中。
 - Compose 中的 `image`、`environment`、`env_file`、挂载配置和启动参数必须能追踪到具体来源。
-- 开发 -> 测试 -> 生产流转时，必须提供 jar 包路径或镜像地址。
-- 默认使用 Docker 镜像交付时，开发只负责构建并推送镜像；目标环境版本替换由运维或负责人按 Compose 中的镜像 tag 完成。
-- 替换版本前必须记录当前镜像 tag 或 jar 文件，替换后必须记录新版本和验证结果。
+- 开发 -> 测试 -> 生产流转时，版本发布必须走 Docker 镜像，不接受 jar 包作为最终环境发布交付物。
+- 镜像地址必须使用公司镜像仓库前缀 `registry.cn-sccd1.ctyun.cn/cmat/`，推荐格式为 `registry.cn-sccd1.ctyun.cn/cmat/{project}/{service}:{tag}`。
+- jar 包只作为构建 Docker 镜像的中间产物或构建输入，不作为开发、测试、生产环境发布交付物。
+- 开发负责构建并推送镜像；目标环境版本替换由运维或负责人按 Compose 中的镜像 tag 完成。
+- 版本替换只能通过修改项目登记 Compose 文件中的 `image` tag，并执行 `docker compose pull service_name`、`docker compose up -d service_name` 完成。
+- 替换版本前必须记录当前镜像 tag，替换后必须记录新镜像地址、新 tag 和验证结果。
 
 ## 重大变更记录
 
 以下 Docker/服务器变更必须记录到 `/data/logs/{project}-{env}-changes.md`：
 
 - 修改 Compose 文件、`.env`、启动脚本或数据卷路径。
-- 新增、删除、升级、回滚镜像或 jar 包。
+- 新增、删除、升级、回滚镜像或镜像构建来源 jar 包。
 - 修改端口、防火墙、系统服务或 Docker 配置。
 - 调整数据库、中间件、对象存储等持久化目录。
 - 清理容器、镜像、volume 或宿主机数据。
@@ -101,6 +104,6 @@ docker system prune
 
 ## 回滚要求
 
-- 发布前记录当前镜像 tag、jar 版本或 Compose 文件 Git commit。
+- 发布前记录当前镜像地址、镜像 tag、镜像构建来源 jar 版本或 Compose 文件 Git commit。
 - 修改 Compose 或 `.env` 前先查看 Git diff 或备份原文件。
-- 回滚方式必须能恢复到上一个镜像、jar、配置或 Git commit。
+- 回滚方式必须能恢复到上一个镜像 tag、配置或 Git commit。

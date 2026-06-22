@@ -36,10 +36,11 @@
 
 - 后端打包命令：
 - 前端打包命令：
-- jar 包输出位置：
-- 镜像仓库地址：
-- 默认交付方式：Docker 镜像 / jar 包
-- 开发 -> 测试 -> 生产流转方式：
+- jar 包输出位置：构建镜像输入，不作为环境发布交付物
+- 镜像仓库地址：`registry.cn-sccd1.ctyun.cn/cmat/`
+- 默认交付方式：Docker 镜像
+- 镜像命名格式：`registry.cn-sccd1.ctyun.cn/cmat/{project}/{service}:{tag}`
+- 开发 -> 测试 -> 生产流转方式：开发推送镜像，运维或负责人替换目标环境 Compose 镜像 tag
 - 当前版本记录位置：
 - 回滚版本记录位置：
 
